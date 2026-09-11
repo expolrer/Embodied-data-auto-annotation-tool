@@ -36,6 +36,7 @@ ROS bag / LeRobot / extracted RGB-D
 | `interaction-auto-labeler-v3/` | 大规模数据治理、质量、几何和训练闭环 |
 | `scripts/auto-labeler-v3` | 始终运行当前仓库源码的统一入口 |
 | `scripts/install.sh` | 创建环境并安装三层模块 |
+| `scripts/bootstrap_server_env.sh` | 无复制地组合服务器现有模型与数据依赖 |
 
 ## 安装
 
@@ -48,6 +49,18 @@ cd /ssd/hhw/Embodied-data-auto-annotation-tool
 
 脚本只安装 Python 包，不下载 GroundingDINO、SAM2、SAM3 或 VLM 权重。模型路径必须在运行命令中
 显式提供。
+
+服务器已经存在 OpenPI 模型环境和深度数据环境时，可建立独立的只读 overlay。该方式不会向两个
+来源环境安装或删除任何包：
+
+```bash
+cd /ssd/hhw/Embodied-data-auto-annotation-tool
+./scripts/bootstrap_server_env.sh
+```
+
+默认从 `/ssd/hhw/openpi-hzh/.venv` 读取 PyTorch/Transformers/PyArrow，从
+`/ssd/hhw/depth-processing/.venv` 读取 ROS bag 与 OpenCV 依赖。可分别通过
+`AUTO_LABELER_MODEL_PYTHON` 和 `AUTO_LABELER_DATA_PYTHON` 覆盖来源。
 
 ## 启动 V3
 

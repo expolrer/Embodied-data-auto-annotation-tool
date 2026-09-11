@@ -38,12 +38,24 @@ fi
 overlay_site="$($repo_root/.venv/bin/python -c 'import site; print(site.getsitepackages()[0])')"
 model_site="$($model_python -c 'import site; print(site.getsitepackages()[0])')"
 data_site="$($data_python -c 'import site; print(site.getsitepackages()[0])')"
-printf '%s\n%s\n' "$model_site" "$data_site" > "$overlay_site/embodied_auto_labeler_runtime.pth"
+printf '%s\n%s\n%s\n%s\n%s\n' \
+  "$repo_root/interaction-auto-labeler-v3/src" \
+  "$repo_root/interaction-auto-labeler-v2/src" \
+  "$repo_root/interaction-labeler-v1/src" \
+  "$model_site" \
+  "$data_site" \
+  > "$overlay_site/embodied_auto_labeler_runtime.pth"
 
 "$repo_root/.venv/bin/python" -c \
   'import cv2, numpy, PIL, pyarrow, rosbags, torch, transformers, yaml; print("runtime dependencies: ready")'
+module_path="$($repo_root/.venv/bin/python -c 'import interaction_auto_labeler_v3; print(interaction_auto_labeler_v3.__file__)')"
+if [[ "$module_path" != "$repo_root/"* ]]; then
+  echo "V3 resolved outside the canonical repository: $module_path" >&2
+  exit 1
+fi
 "$repo_root/scripts/auto-labeler-v3" --help >/dev/null
 
 echo "Server overlay environment is ready at $repo_root/.venv"
+echo "V3 source:      $module_path"
 echo "Model packages: $model_site"
 echo "Data packages:  $data_site"

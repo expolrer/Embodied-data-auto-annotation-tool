@@ -61,6 +61,8 @@ cd /ssd/hhw/Embodied-data-auto-annotation-tool
 默认从 `/ssd/hhw/openpi-hzh/.venv` 读取 PyTorch/Transformers/PyArrow，从
 `/ssd/hhw/depth-processing/.venv` 读取 ROS bag 与 OpenCV 依赖。可分别通过
 `AUTO_LABELER_MODEL_PYTHON` 和 `AUTO_LABELER_DATA_PYTHON` 覆盖来源。
+overlay 会把本仓库 V3/V2/V1 的 `src` 路径放在两个来源环境之前，并在配置时检查实际导入路径，
+因此依赖来自既有环境，自动标注源码始终来自本仓库。
 
 ## 启动 V3
 

@@ -1,0 +1,48 @@
+# Python environments and caches
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Generated annotation data
+/outputs/
+/logs/
+/reports/
+/workspaces/
+**/annotation-workspaces/
+**/pipeline_status.json
+**/annotations.local.json
+
+# Models, datasets, and media
+/models/
+/vendor/
+/wheelhouse/
+/external/
+/checkpoints/
+*.bag
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.engine
+*.mp4
+*.avi
+*.mkv
+
+# Credentials and machine-local configuration
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

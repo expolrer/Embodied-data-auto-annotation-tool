@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [[ -n "${AUTO_LABELER_PYTHON:-}" ]]; then
+  python_bin=$AUTO_LABELER_PYTHON
+elif [[ -x "$repo_root/.venv/bin/python" ]]; then
+  python_bin="$repo_root/.venv/bin/python"
+elif [[ -x /ssd/hhw/depth-processing/.venv/bin/python ]]; then
+  python_bin=/ssd/hhw/depth-processing/.venv/bin/python
+elif command -v python3 >/dev/null 2>&1; then
+  python_bin="$(command -v python3)"
+else
+  echo "No Python interpreter found. Run scripts/install.sh or set AUTO_LABELER_PYTHON." >&2
+  exit 1
+fi
+
+source_paths="$repo_root/interaction-auto-labeler-v3/src:$repo_root/interaction-auto-labeler-v2/src:$repo_root/interaction-labeler-v1/src"
+export PYTHONPATH="$source_paths${PYTHONPATH:+:$PYTHONPATH}"
+
+exec "$python_bin" -m interaction_auto_labeler_v3 "$@"

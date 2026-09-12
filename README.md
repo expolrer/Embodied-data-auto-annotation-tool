@@ -16,6 +16,21 @@ ROS bag / LeRobot / extracted RGB-D
   -> V3: 统一事件图 + 分层边界/语言 + 质量校准 + 三维几何 + 训练闭环
 ```
 
+V3 内部进一步拆成一个共享数据底座和七个可独立运行、复核及验收的系统：
+
+| 系统 | 负责的问题 | 当前成熟度 |
+| --- | --- | --- |
+| 目标实例与二维跟踪 | 实际操作的是哪个实例，逐帧在哪里 | Beta |
+| 交互事件与时序边界 | 何时接触、抓取、搬运、放置和释放 | Beta |
+| 实体约束分层语言 | 如何按 task/subtask/event 准确描述 | Beta |
+| 跨视角 RGB-D 三维几何 | 目标在物理空间哪里、三视角是否一致 | Alpha，依赖真实标定 |
+| 任务结果与数据质量 | 是否成功、为何失败、数据是否可用 | Alpha |
+| 金标集与主动学习 | 哪些样本值得人工、如何校准与回流纠错 | Alpha |
+| VLA 训练导出与评估 | 标签如何用于 ACT/π0.5，是否真正提升策略 | Alpha，真实 A/B 待完成 |
+
+完整的模块边界、输入输出、审核点、VLA 接法和验收指标见
+[`SYSTEM-PORTFOLIO.md`](interaction-auto-labeler-v3/docs/SYSTEM-PORTFOLIO.md)。
+
 | 模块 | 状态 | 已交付内容 | 生产数据前置条件 |
 | --- | --- | --- | --- |
 | P0 数据底座 | 代码完成 | 统一事件图、LeRobot v3 校验/转换、版本清单、稳定分片、任务队列、金标抽样 | 发布数据需生成 full hash 版本并完成双人金标 |
@@ -86,6 +101,20 @@ cd /ssd/hhw/Embodied-data-auto-annotation-tool
   --workspace /ssd/hhw/annotations/zhuomian_v3 \
   --port 8773
 ```
+
+查看全部系统或按当前数据条件生成实施计划：
+
+```bash
+./scripts/auto-labeler-v3 list-systems
+./scripts/auto-labeler-v3 plan-systems \
+  --profile semantic_events \
+  --available rgb,timestamps,target_description,task_instruction,robot_state \
+  --strict --output /ssd/hhw/annotations/semantic_events.plan.json
+```
+
+内置 profile 包括 `target_tracking`、`semantic_events`、`rgbd_geometry`、`quality_loop`、
+`training_2d`、`training_rgbd` 和 `full`。计划器会自动展开依赖并列出缺失的数据、标定、人工
+审核或训练配置能力；`--strict` 适合在提交大规模任务前阻止不完整配置。
 
 统一入口会优先使用仓库自身 `.venv/bin/python`。也可设置 `AUTO_LABELER_PYTHON` 指向已经配置好
 Grounded-SAM2/VLM 的 Python；无论使用哪个解释器，入口都会把当前仓库源码置于 `PYTHONPATH`

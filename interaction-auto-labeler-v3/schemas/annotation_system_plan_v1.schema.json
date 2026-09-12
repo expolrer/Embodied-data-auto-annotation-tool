@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/expolrer/Embodied-data-auto-annotation-tool/schemas/annotation_system_plan_v1.schema.json",
+  "title": "Embodied annotation system plan",
+  "type": "object",
+  "required": [
+    "schema",
+    "requested_systems",
+    "include_dependencies",
+    "available_capabilities",
+    "summary",
+    "capability_gaps",
+    "systems"
+  ],
+  "properties": {
+    "schema": {"const": "embodied_annotation_system_plan_v1"},
+    "profile": {"type": ["string", "null"]},
+    "requested_systems": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "include_dependencies": {"type": "boolean"},
+    "available_capabilities": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "summary": {
+      "type": "object",
+      "required": ["systems", "ready", "blocked"],
+      "properties": {
+        "systems": {"type": "integer", "minimum": 1},
+        "ready": {"type": "integer", "minimum": 0},
+        "blocked": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "capability_gaps": {"type": "array", "items": {"type": "object"}},
+    "systems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "phase",
+          "system_id",
+          "state",
+          "maturity",
+          "dependencies",
+          "missing_capabilities",
+          "outputs",
+          "acceptance_metrics",
+          "design_document"
+        ],
+        "properties": {
+          "phase": {"type": "integer", "minimum": 1},
+          "system_id": {"type": "string"},
+          "name_zh": {"type": "string"},
+          "state": {
+            "enum": [
+              "ready",
+              "blocked_by_capability",
+              "blocked_by_dependency",
+              "blocked_by_unplanned_dependency"
+            ]
+          },
+          "maturity": {"type": "string"},
+          "dependencies": {"type": "array", "items": {"type": "string"}},
+          "missing_dependencies": {"type": "array", "items": {"type": "string"}},
+          "blocked_dependencies": {"type": "array", "items": {"type": "string"}},
+          "missing_capabilities": {"type": "array", "items": {"type": "string"}},
+          "outputs": {"type": "array", "items": {"type": "string"}},
+          "acceptance_metrics": {"type": "array", "items": {"type": "string"}},
+          "design_document": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

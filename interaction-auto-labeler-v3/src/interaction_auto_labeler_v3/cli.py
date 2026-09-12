@@ -16,6 +16,7 @@ from .dataset_lifecycle import (
 from .event_graph import EpisodeEventGraph, migrate_v2_workspace
 from .gold import stratified_gold_sample, write_gold_manifest
 from .io import atomic_write_json, read_jsonl
+from .system_catalog import PROFILES, SYSTEM_BY_ID, build_system_plan, catalog_payload
 
 
 def _print(payload: Any) -> None:
@@ -206,6 +207,28 @@ def build_parser() -> argparse.ArgumentParser:
     )
     ablation_run.add_argument("--bundle", type=Path, required=True)
     ablation_run.add_argument("--execute", action="store_true")
+
+    systems = commands.add_parser(
+        "list-systems", help="List independent annotation systems and shared capabilities"
+    )
+    systems.add_argument("--output", type=Path)
+
+    system_plan = commands.add_parser(
+        "plan-systems", help="Resolve a system profile, dependencies, and capability gaps"
+    )
+    selection = system_plan.add_mutually_exclusive_group()
+    selection.add_argument("--profile", choices=tuple(PROFILES), default="full")
+    selection.add_argument("--system", action="append", choices=tuple(SYSTEM_BY_ID), dest="systems")
+    system_plan.add_argument(
+        "--available",
+        action="append",
+        default=[],
+        metavar="CAPABILITY[,CAPABILITY]",
+        help="Available input capabilities; repeat the option or use commas",
+    )
+    system_plan.add_argument("--no-dependencies", action="store_true")
+    system_plan.add_argument("--strict", action="store_true")
+    system_plan.add_argument("--output", type=Path)
     return parser
 
 
@@ -567,5 +590,30 @@ def main() -> None:
         from .ablation import execute_bundle
 
         _print(execute_bundle(args.bundle, dry_run=not args.execute))
+        return
+    if args.command == "list-systems":
+        payload = catalog_payload()
+        if args.output:
+            atomic_write_json(args.output, payload)
+        _print(payload)
+        return
+    if args.command == "plan-systems":
+        available = {
+            capability.strip()
+            for value in args.available
+            for capability in value.split(",")
+            if capability.strip()
+        }
+        plan = build_system_plan(
+            requested=args.systems,
+            profile=None if args.systems else args.profile,
+            available_capabilities=available,
+            include_dependencies=not args.no_dependencies,
+        )
+        if args.output:
+            atomic_write_json(args.output, plan)
+        _print(plan)
+        if args.strict and plan["summary"]["blocked"]:
+            raise SystemExit(2)
         return
     raise AssertionError(args.command)

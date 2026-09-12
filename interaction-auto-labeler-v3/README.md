@@ -4,6 +4,10 @@ V3 是与 V1、V2 并列的独立自动标注系统。它复用已验证的 Grou
 RGB-D/关节/夹爪交互实例评分、SAM2 双向跟踪和三视角人工修正页面，并在其后增加面向大规模
 具身数据治理的事件图、质量校准、三维几何和训练闭环。V1、V2 源码和原有输出格式不被修改。
 
+V3 同时被组织为七个边界明确的子系统：目标实例与二维跟踪、交互事件与时序边界、实体约束
+分层语言、跨视角 RGB-D 三维几何、任务结果与数据质量、金标与主动学习、VLA 训练与评估。
+系统组合设计见 [`docs/SYSTEM-PORTFOLIO.md`](docs/SYSTEM-PORTFOLIO.md)。
+
 ```text
 ROS bag / LeRobot / extracted RGB-D
   -> V2 目标实例识别与双向跟踪
@@ -29,6 +33,29 @@ uv pip install --python .venv-auto-labeler-v3/bin/python \
 ```
 
 V3 不在运行期间静默下载模型。GroundingDINO、SAM2、SAM3 和本地 VLM 的权重路径都需显式传入。
+
+## 规划系统组合
+
+查看所有系统、依赖、输入能力、输出与验收指标：
+
+```bash
+auto-labeler-v3 list-systems --output system_catalog.json
+```
+
+根据目标和已有数据生成可执行计划：
+
+```bash
+auto-labeler-v3 plan-systems \
+  --profile training_rgbd \
+  --available rgb,timestamps,target_description,task_instruction,robot_state \
+  --available depth_metric,calibration_bundle,dataset_version,human_review \
+  --available policy_config,split_manifest \
+  --strict --output training_rgbd.plan.json
+```
+
+计划按依赖拓扑排序，并将每个系统标记为 `ready`、`blocked_by_capability`、
+`blocked_by_dependency` 或 `blocked_by_unplanned_dependency`。`--strict` 在存在阻塞项时返回 2，
+可以直接接入 CI、Slurm 或 Ray 的作业提交门禁。
 
 ## 启动互动系统
 
@@ -186,5 +213,6 @@ ruff check src tests
 ruff format --check src tests
 ```
 
-单元测试覆盖 schema、迁移、版本、金标抽样、分层边界、语言 grounding、可靠度校准、GVL、异常、
-动态 FK、重投影、点云融合、6D proxy 限制、队列、分片、纠错蒸馏、训练消融和互动工作区。
+单元测试覆盖 schema、迁移、版本、金标抽样、系统组合规划、分层边界、语言 grounding、可靠度
+校准、GVL、异常、动态 FK、重投影、点云融合、6D proxy 限制、队列、分片、纠错蒸馏、训练消融
+和互动工作区。

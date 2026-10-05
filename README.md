@@ -83,9 +83,12 @@ cd /ssd/hhw/Embodied-data-auto-annotation-tool
 
 ```bash
 export AUTO_LABELER_VLM_PYTHON=/root/miniconda3/envs/qwen35vl/bin/python
+export AUTO_LABELER_SAM2_PYTHON=/root/miniconda3/envs/cosmos311/bin/python
+export AUTO_LABELER_SAM2_SOURCE=/ssd/hhw/depth-processing/models/sam2
 ```
 
-该变量只影响 VLM 阶段，不改变检测、跟踪与 ROS bag 解码的运行环境。
+两个独立解释器分别只影响 VLM 消歧和 SAM2 跟踪；检测与 ROS bag 解码仍在本仓库
+的 `.venv` 中运行。
 overlay 会把本仓库 V3/V2/V1 的 `src` 路径放在两个来源环境之前，并在配置时检查实际导入路径，
 因此依赖来自既有环境，自动标注源码始终来自本仓库。
 V1/V2 默认从本仓库的 `scripts/` 运行检测、排序、VLM 和 SAM2；无须另行检出

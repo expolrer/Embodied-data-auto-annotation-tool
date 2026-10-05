@@ -26,7 +26,9 @@ SAM2 仍使用服务器上已经配置好的源码和权重。启动前应确保
 环境导入，GroundingDINO、Qwen 和 SAM2 权重均为本地路径。
 在 56 服务器可先从仓库根目录运行 `./scripts/bootstrap_server_env.sh`，并设置
 `AUTO_LABELER_VLM_PYTHON=/root/miniconda3/envs/qwen35vl/bin/python`，让可选的
-Qwen3.5 消歧使用其独立环境。
+Qwen3.5 消歧使用其独立环境。SAM2 跟踪可设置
+`AUTO_LABELER_SAM2_PYTHON=/root/miniconda3/envs/cosmos311/bin/python`；
+源码默认从传入的 checkpoint 上两级目录定位，也可用 `AUTO_LABELER_SAM2_SOURCE` 指定。
 
 ## 一条命令启动
 

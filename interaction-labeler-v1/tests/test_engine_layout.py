@@ -1,8 +1,14 @@
+import os
 import sys
 
 import pytest
 
-from interaction_labeler.pipeline import default_engine_root, vlm_python
+from interaction_labeler.pipeline import (
+    default_engine_root,
+    sam2_environment,
+    sam2_python,
+    vlm_python,
+)
 
 
 def test_default_engine_is_self_contained() -> None:
@@ -32,3 +38,18 @@ def test_vlm_uses_separate_python_when_configured(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setenv("AUTO_LABELER_VLM_PYTHON", str(tmp_path / "missing"))
     with pytest.raises(FileNotFoundError):
         vlm_python()
+
+
+def test_sam2_uses_separate_python_and_checkpoint_source(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    python = tmp_path / "python"
+    python.touch()
+    monkeypatch.setenv("AUTO_LABELER_SAM2_PYTHON", str(python))
+    monkeypatch.delenv("AUTO_LABELER_SAM2_SOURCE", raising=False)
+    assert sam2_python() == str(python)
+    source = tmp_path / "sam2-source"
+    (source / "sam2").mkdir(parents=True)
+    (source / "sam2" / "build_sam.py").touch()
+    checkpoint = source / "checkpoints" / "sam2.pt"
+    assert sam2_environment(checkpoint)["PYTHONPATH"].split(os.pathsep)[0] == str(source)

@@ -24,14 +24,30 @@ def default_engine_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def vlm_python() -> str:
-    configured = os.environ.get("AUTO_LABELER_VLM_PYTHON")
+def _stage_python(variable: str) -> str:
+    configured = os.environ.get(variable)
     if not configured:
         return sys.executable
     path = Path(configured).expanduser()
     if not path.is_file():
-        raise FileNotFoundError(f"AUTO_LABELER_VLM_PYTHON does not exist: {path}")
+        raise FileNotFoundError(f"{variable} does not exist: {path}")
     return str(path)
+
+
+def vlm_python() -> str:
+    return _stage_python("AUTO_LABELER_VLM_PYTHON")
+
+
+def sam2_python() -> str:
+    return _stage_python("AUTO_LABELER_SAM2_PYTHON")
+
+
+def sam2_environment(checkpoint: Path) -> dict[str, str]:
+    env = os.environ.copy()
+    source = Path(env.get("AUTO_LABELER_SAM2_SOURCE") or checkpoint.parent.parent)
+    if (source / "sam2" / "build_sam.py").is_file():
+        env["PYTHONPATH"] = str(source) + os.pathsep + env.get("PYTHONPATH", "")
+    return env
 
 
 def _slug(value: str) -> str:
@@ -55,6 +71,7 @@ def _run(
     workspace: Path,
     stage: str,
     callback: StatusCallback | None,
+    env: dict[str, str] | None = None,
 ) -> None:
     status = _set_status(workspace, stage, "running", command=command)
     if callback:
@@ -70,6 +87,7 @@ def _run(
             text=True,
             encoding="utf-8",
             errors="replace",
+            env=env,
         )
         assert process.stdout is not None
         for line in process.stdout:
@@ -400,7 +418,7 @@ def run_required_tracking(
     selections = build_required_selections(workspace)
     for role in ("head", "wrist"):
         command = [
-            sys.executable,
+            sam2_python(),
             str(engine_root / "scripts" / "track_required_views_sam2.py"),
             "--role",
             role,
@@ -421,7 +439,14 @@ def run_required_tracking(
             "--device",
             device,
         ]
-        _run(command, engine_root, workspace, f"sam2_{role}", callback)
+        _run(
+            command,
+            engine_root,
+            workspace,
+            f"sam2_{role}",
+            callback,
+            env=sam2_environment(sam2_checkpoint),
+        )
     _merge_tracks(workspace)
 
 

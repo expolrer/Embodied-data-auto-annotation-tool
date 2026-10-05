@@ -10,14 +10,14 @@ GroundingDINO 检出全部候选
 -> 头部与执行腕部人工抽检
 ```
 
-仓库保留 `depth-process/scripts/` 中经过 19 次抓取复核验证的模型脚本，并在其上提供统一
+仓库内的 `scripts/` 保留经过 19 次抓取复核验证的模型脚本，并在其上提供统一
 CLI、ROS bag/LeRobot 数据入口、任务配置和可编辑网页。网页中的人工框优先级高于模型候选；
 自动处理完成后再次画框并重跑，即可重新初始化对应 SAM2 轨迹。
 
 ## 安装
 
 ```bash
-cd /ssd/hhw/depth-process
+cd /ssd/hhw/Embodied-data-auto-annotation-tool
 uv venv --python 3.10 .venv-labeler
 uv pip install --python .venv-labeler/bin/python -e './interaction-labeler-v1[rosbag,lerobot,models]'
 ```
@@ -35,8 +35,8 @@ ROS bag 文件或目录：
   --format rosbag \
   --workspace /ssd/hhw/annotations/toy_v1 \
   --task interaction-labeler-v1/configs/example_task.yaml \
-  --grounding-model /ssd/hhw/depth-process/models/grounding-dino-base \
-  --sam2-checkpoint /ssd/hhw/depth-process/models/sam2/checkpoints/sam2.1_hiera_large.pt \
+  --grounding-model /ssd/hhw/depth-processing/models/grounding-dino-base \
+  --sam2-checkpoint /ssd/hhw/depth-processing/models/sam2/checkpoints/sam2.1_hiera_large.pt \
   --vlm-model /ssd/hhw/models/internvla_a1_5/Qwen3.5-2B \
   --port 8769
 ```
@@ -58,7 +58,8 @@ LeRobot 数据集：
 然后点击“开始自动处理”。使用 `--auto-start` 可在页面启动后立即运行。
 
 LeRobot 若没有明确的抓取事件文件，第一轮使用 episode 中点作为接触帧，并在页面标记警告。
-应在运行模型前修正接触帧。原始 ROS bag 会调用 `depth-process` 已验证的提取和机器人时序脚本。
+应在运行模型前修正接触帧。原始 ROS bag 会调用本仓库的提取和机器人时序脚本；
+模型权重可继续使用服务器现有路径，不属于本仓库代码依赖。
 
 ## 分步运行
 

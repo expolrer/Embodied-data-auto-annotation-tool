@@ -4,8 +4,8 @@
 仓库同时保留 V1/V2 作为可复现的基础模块；V3 直接复用它们完成候选检测、交互实例判断、
 双向跟踪和人工复核。
 
-> 本仓库是自动标注工具后续开发的唯一主仓库。`depth-process` 中的旧副本只作为历史快照，
-> 不再接收该工具的新功能。
+> 本仓库是自动标注工具的唯一开发仓库。原 `depth-process-model` 中的标注运行脚本
+> 已迁至此处；深度处理与注意力指标仍由原项目维护。模型权重和数据不纳入 Git。
 
 ## 系统结构
 
@@ -49,6 +49,8 @@ V3 内部进一步拆成一个共享数据底座和七个可独立运行、复�
 | `interaction-labeler-v1/` | 基础多视角互动标注器 |
 | `interaction-auto-labeler-v2/` | 任务目标实例自动判定与跟踪 |
 | `interaction-auto-labeler-v3/` | 大规模数据治理、质量、几何和训练闭环 |
+| `scripts/` | V1/V2 标注引擎、数据提取、复核工具及统一入口 |
+| `depth_pipeline/` | ROS bag 解码与深度对齐所需的共享基础模块 |
 | `scripts/auto-labeler-v3` | 始终运行当前仓库源码的统一入口 |
 | `scripts/install.sh` | 创建环境并安装三层模块 |
 | `scripts/bootstrap_server_env.sh` | 无复制地组合服务器现有模型与数据依赖 |
@@ -78,6 +80,8 @@ cd /ssd/hhw/Embodied-data-auto-annotation-tool
 `AUTO_LABELER_MODEL_PYTHON` 和 `AUTO_LABELER_DATA_PYTHON` 覆盖来源。
 overlay 会把本仓库 V3/V2/V1 的 `src` 路径放在两个来源环境之前，并在配置时检查实际导入路径，
 因此依赖来自既有环境，自动标注源码始终来自本仓库。
+V1/V2 默认从本仓库的 `scripts/` 运行检测、排序、VLM 和 SAM2；无须另行检出
+`depth-process-model`。`--engine-root` 仅用于显式选择其他兼容脚本目录。
 
 ## 启动 V3
 

@@ -20,7 +20,7 @@ V2 是独立的任务条件化多视角自动标注项目，复用 V1 已验证�
 Grounded-SAM2 路线沿用现有 Python 3.10 环境：
 
 ```bash
-cd /ssd/hhw/depth-process
+cd /ssd/hhw/Embodied-data-auto-annotation-tool
 uv venv --python 3.10 .venv-auto-labeler
 uv pip install --python .venv-auto-labeler/bin/python \
   -e './interaction-labeler-v1[rosbag,lerobot,models]' \
@@ -39,8 +39,8 @@ SAM3.1 应使用单独的 Python 3.12、PyTorch 2.7+、CUDA 12.6+ 环境，并�
   --format lerobot \
   --workspace /ssd/hhw/annotations/zhuomian_v2 \
   --task interaction-auto-labeler-v2/configs/example_task.yaml \
-  --concept-model /ssd/hhw/depth-process/models/grounding-dino-base \
-  --sam2-checkpoint /ssd/hhw/depth-process/models/sam2/checkpoints/sam2.1_hiera_large.pt \
+  --concept-model /ssd/hhw/depth-processing/models/grounding-dino-base \
+  --sam2-checkpoint /ssd/hhw/depth-processing/models/sam2/checkpoints/sam2.1_hiera_large.pt \
   --vlm-model /ssd/hhw/models/internvla_a1_5/Qwen3.5-2B \
   --port 8771
 ```

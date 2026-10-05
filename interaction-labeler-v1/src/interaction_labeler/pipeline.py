@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
@@ -21,6 +22,16 @@ ROLE_CAMERA = {"head": "cam_h", "left_wrist": "cam_l", "right_wrist": "cam_r"}
 
 def default_engine_root() -> Path:
     return Path(__file__).resolve().parents[3]
+
+
+def vlm_python() -> str:
+    configured = os.environ.get("AUTO_LABELER_VLM_PYTHON")
+    if not configured:
+        return sys.executable
+    path = Path(configured).expanduser()
+    if not path.is_file():
+        raise FileNotFoundError(f"AUTO_LABELER_VLM_PYTHON does not exist: {path}")
+    return str(path)
 
 
 def _slug(value: str) -> str:
@@ -506,7 +517,7 @@ def run_pipeline(
         _run(rank_command, engine_root, workspace, "interaction_ranking", callback)
         if not skip_vlm and vlm_model:
             vlm_command = [
-                sys.executable,
+                vlm_python(),
                 str(engine_root / "scripts" / "resolve_ambiguity_with_vlm.py"),
                 "--queue",
                 str(outputs / "interaction_candidates" / "ambiguity_queue.jsonl"),

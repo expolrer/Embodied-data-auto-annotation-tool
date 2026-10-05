@@ -2,8 +2,9 @@
 set -euo pipefail
 
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-model_python="${AUTO_LABELER_MODEL_PYTHON:-/ssd/hhw/openpi-hzh/.venv/bin/python}"
+model_python="${AUTO_LABELER_MODEL_PYTHON:-/ssd/openpi/.venv/bin/python}"
 data_python="${AUTO_LABELER_DATA_PYTHON:-/ssd/hhw/depth-processing/.venv/bin/python}"
+sam2_source="${AUTO_LABELER_SAM2_SOURCE:-/ssd/hhw/depth-processing/models/sam2}"
 
 if [[ -n "${UV_BIN:-}" ]]; then
   uv_bin=$UV_BIN
@@ -38,13 +39,17 @@ fi
 overlay_site="$($repo_root/.venv/bin/python -c 'import site; print(site.getsitepackages()[0])')"
 model_site="$($model_python -c 'import site; print(site.getsitepackages()[0])')"
 data_site="$($data_python -c 'import site; print(site.getsitepackages()[0])')"
-printf '%s\n%s\n%s\n%s\n%s\n' \
-  "$repo_root/interaction-auto-labeler-v3/src" \
-  "$repo_root/interaction-auto-labeler-v2/src" \
-  "$repo_root/interaction-labeler-v1/src" \
-  "$model_site" \
-  "$data_site" \
-  > "$overlay_site/embodied_auto_labeler_runtime.pth"
+{
+  printf '%s\n' \
+    "$repo_root/interaction-auto-labeler-v3/src" \
+    "$repo_root/interaction-auto-labeler-v2/src" \
+    "$repo_root/interaction-labeler-v1/src" \
+    "$model_site" \
+    "$data_site"
+  if [[ -f "$sam2_source/sam2/build_sam.py" ]]; then
+    printf '%s\n' "$sam2_source"
+  fi
+} > "$overlay_site/embodied_auto_labeler_runtime.pth"
 
 "$repo_root/.venv/bin/python" -c \
   'import cv2, numpy, PIL, pyarrow, rosbags, torch, transformers, yaml; print("runtime dependencies: ready")'

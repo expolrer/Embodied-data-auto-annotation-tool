@@ -24,6 +24,9 @@ uv pip install --python .venv-labeler/bin/python -e './interaction-labeler-v1[ro
 
 SAM2 仍使用服务器上已经配置好的源码和权重。启动前应确保 `sam2` 可以在当前 Python
 环境导入，GroundingDINO、Qwen 和 SAM2 权重均为本地路径。
+在 56 服务器可先从仓库根目录运行 `./scripts/bootstrap_server_env.sh`，并设置
+`AUTO_LABELER_VLM_PYTHON=/root/miniconda3/envs/qwen35vl/bin/python`，让可选的
+Qwen3.5 消歧使用其独立环境。
 
 ## 一条命令启动
 

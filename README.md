@@ -75,9 +75,17 @@ cd /ssd/hhw/Embodied-data-auto-annotation-tool
 ./scripts/bootstrap_server_env.sh
 ```
 
-默认从 `/ssd/hhw/openpi-hzh/.venv` 读取 PyTorch/Transformers/PyArrow，从
+默认从 `/ssd/openpi/.venv` 读取 PyTorch/Transformers/PyArrow，从
 `/ssd/hhw/depth-processing/.venv` 读取 ROS bag 与 OpenCV 依赖。可分别通过
 `AUTO_LABELER_MODEL_PYTHON` 和 `AUTO_LABELER_DATA_PYTHON` 覆盖来源。
+已有 SAM2 源码默认读取 `/ssd/hhw/depth-processing/models/sam2`，可通过
+`AUTO_LABELER_SAM2_SOURCE` 改写。Qwen3.5 消歧可使用独立解释器：
+
+```bash
+export AUTO_LABELER_VLM_PYTHON=/root/miniconda3/envs/qwen35vl/bin/python
+```
+
+该变量只影响 VLM 阶段，不改变检测、跟踪与 ROS bag 解码的运行环境。
 overlay 会把本仓库 V3/V2/V1 的 `src` 路径放在两个来源环境之前，并在配置时检查实际导入路径，
 因此依赖来自既有环境，自动标注源码始终来自本仓库。
 V1/V2 默认从本仓库的 `scripts/` 运行检测、排序、VLM 和 SAM2；无须另行检出
